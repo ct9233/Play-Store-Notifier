@@ -10,6 +10,7 @@ twilio_to = os.getenv("TWI_TO_NUM")
 
 slay_spire_price = 9.99
 slay_spire_version = "2.2.6"
+notification_message = ''
 
 result = app(
     'com.humble.SlayTheSpire',
@@ -18,34 +19,19 @@ result = app(
 )
 
 if result['price'] != slay_spire_price:
-    client = Client(account_sid, auth_token)
-    message = client.messages \
-        .create(
-        body=f"The Google Play Store price for Slay the Spire has changed to {result['price']}.",
-        from_=f"{twilio_from}",
-        to=f"{twilio_to}"
-    )
+    notification_message = f"The Google Play Store price for Slay the Spire has changed to {result['price']}."
 elif result['free'] == True:
-    client = Client(account_sid, auth_token)
-    message = client.messages \
-        .create(
-        body="Slay the Spire is now free on the Google Play Store!",
-        from_=f"{twilio_from}",
-        to=f"{twilio_to}"
-    )
+    notification_message = "Slay the Spire is now free on the Google Play Store!"
 elif result['sale'] == True:
-    client = Client(account_sid, auth_token)
-    message = client.messages \
-        .create(
-        body=f"Slay the Spire is on sale on the Google Play Store for ${result['price']} during {result['saleTime']}.",
-        from_=f"{twilio_from}",
-        to=f"{twilio_to}"
-    )
+    notification_message = "Slay the Spire is on sale on the Google Play Store for ${result['price']} during {result['saleTime']}."
 elif result['version'] != slay_spire_version:
+    notification_message = f"Slay the Spire version has changed to {result['version']} on the Google Play Store.\nChanges: {result['recentChanges']}"
+    
+if notification_message != '':
     client = Client(account_sid, auth_token)
     message = client.messages \
         .create(
-        body=f"Slay the Spire version has changed to {result['version']} on the Google Play Store.\nChanges: {result['recentChanges']}",
+        body=notification_message,
         from_=f"{twilio_from}",
         to=f"{twilio_to}"
     )
